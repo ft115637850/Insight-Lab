@@ -1,0 +1,19 @@
+﻿.back-ground {
+    background-image: url('factory.png');
+    background-repeat: no-repeat;
+    height: 400px;
+    width:100%;
+}
+#mySymbol1 {
+    position: absolute;
+    cursor: move;
+    width: 280px;
+    height: 165px;
+}
+
+#mySymbol2 {
+    position: absolute;
+    cursor: move;
+    width: 280px;
+    height: 165px;
+}

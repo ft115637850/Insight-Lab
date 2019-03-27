@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Newton Insight Lab</title>
+    <link rel="stylesheet" type="text/css" href="testSVG.css">
+</head>
+<body>
+    <div class="back-ground">
+        <div id="symbol1" class="drag-wrapper">
+            <div id="symbol1-dragable" style="width: auto; height: auto; ">
+                <svg viewBox="0 0 280 165" xmlns="http://www.w3.org/2000/svg" id="symbol1-graphic" version="1.1" style="top: 18.8003px; left: 0.333332px; transform-origin: -0.333332px -0.333332px; width: 280px; height: 165px; vector-effect: non-scaling-stroke; overflow: visible; visibility: inherit;">
+                    <!--<path d="M 29.96699141100894 136.03300858899107 A 75 75 0 1 1 136.03300858899107 136.03300858899107" fill="transparent" style="stroke-dasharray: 0; stroke-width: 15; stroke: rgb(15, 118, 199, 0.2); vector-effect: non-scaling-stroke;"></path>-->
+                </svg>
+            </div>
+        </div>
+    </div>
+    <script>
+        // binding value
+        const min = 0;
+        const max = 59;
+        const currentValue = 45.0;
+        const tagName = "ARUNKUMARN03.SysTimeSec";
+        const tagNameHeight = 16;
+        const unit = "Second";
+
+        // design value
+        const startAngle = 0.75;    // Unit PI
+        const sweepAngle = 1.5;
+        const centerX = 83;
+        const centerY = 83+tagNameHeight+4;
+        const r = 75;
+
+        // Symbol define
+        const startPt = getXYFromAngle(centerX, centerY, r, startAngle);
+        const endPt = getXYFromAngle(centerX, centerY, r, (startAngle + sweepAngle) % 2);
+        const largeArcFlag = sweepAngle > 1 ? 1 : 0;
+
+        // value
+        const valueSweepAngle = getSweepAngleFromValue(min, max, sweepAngle, currentValue);
+        const valueEndPt = getXYFromAngle(centerX, centerY, r, startAngle + valueSweepAngle);
+        const valueLargeArcFlag = valueSweepAngle > 1 ? 1 : 0;
+
+        const pathData = [
+            `M ${startPt.x} ${startPt.y}`, // Move
+            `A ${r} ${r} 0 ${largeArcFlag} 1 ${endPt.x} ${endPt.y}`, // Arc
+        ].join(' ');
+
+        const svgEl = document.querySelector('svg');
+        const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pathEl.setAttribute('d', pathData);
+        pathEl.setAttribute('fill', "transparent");
+        pathEl.setAttribute('style', "stroke-dasharray: 0; stroke-width: 15; stroke: rgb(15, 118, 199, 0.2); transform: scale(1, 1); vector-effect: non-scaling-stroke;");
+        svgEl.appendChild(pathEl);
+
+        // value path
+        const valuePathData = [
+            `M ${startPt.x} ${startPt.y}`, // Move
+            `A ${r} ${r} 0 ${valueLargeArcFlag} 1 ${valueEndPt.x} ${valueEndPt.y}`, // Arc
+        ].join(' ');
+        const valuePathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        valuePathEl.setAttribute('d', valuePathData);
+        valuePathEl.setAttribute('fill', "transparent");
+        valuePathEl.setAttribute('style', "stroke-dasharray: 0; stroke-width: 15; stroke: rgb(15, 118, 199); vector-effect: non-scaling-stroke;");
+        svgEl.appendChild(valuePathEl);
+
+        const tagNameEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        tagNameEl.setAttribute('x', 3);
+        tagNameEl.setAttribute('y', 16);
+        tagNameEl.setAttribute('style', "font:19px Microsoft Sans Serif;fill:rgba(33, 33, 33, 0.6);");
+        tagNameEl.textContent = tagName;
+        svgEl.appendChild(tagNameEl);
+
+        const valueEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        valueEl.setAttribute('x', centerX);
+        valueEl.setAttribute('y', centerY);
+        valueEl.setAttribute('text-anchor', 'middle');
+        valueEl.setAttribute('style', "font:23px Microsoft Sans Serif;fill:rgba(33, 33, 33);");
+        valueEl.textContent = currentValue;
+        svgEl.appendChild(valueEl);
+
+        const unitEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        unitEl.setAttribute('x', centerX);
+        unitEl.setAttribute('y', centerY+tagNameHeight);
+        unitEl.setAttribute('text-anchor', 'middle');
+        unitEl.setAttribute('style', "font:13px Microsoft Sans Serif;fill:rgba(33, 33, 33, 0.6);");
+        unitEl.textContent = unit;
+        svgEl.appendChild(unitEl);
+
+        const maxEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        maxEl.setAttribute('x', 130);
+        maxEl.setAttribute('y', 160);
+        maxEl.setAttribute('text-anchor', 'end');
+        maxEl.setAttribute('style', "font:13px Microsoft Sans Serif;fill:rgba(33, 33, 33, 0.6);");
+        maxEl.textContent = max;
+        svgEl.appendChild(maxEl);
+
+        const minEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        minEl.setAttribute('x', 36);
+        minEl.setAttribute('y', 160);
+        minEl.setAttribute('text-anchor', 'start');
+        minEl.setAttribute('style', "font:13px Microsoft Sans Serif;fill:rgba(33, 33, 33, 0.6);");
+        minEl.textContent = min;
+        svgEl.appendChild(minEl);
+
+        function getSweepAngleFromValue(min, max, sweepAngle, currentValue) {
+            return currentValue / (max - min) * sweepAngle;
+        }
+
+        function getXYFromAngle(centerX, centerY, r, angle) {
+            const x = centerX + r * Math.cos(angle * Math.PI);
+            const y = centerY + r * Math.sin(angle * Math.PI);
+            return { x: x, y: y };
+        }
+
+        function dragElement(elmnt) {
+            var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            if (document.getElementById(elmnt.id + "-dragable")) {
+                /* if present, the header is where you move the DIV from:*/
+                document.getElementById(elmnt.id + "-dragable").onmousedown = dragMouseDown;
+            } else {
+                /* otherwise, move the DIV from anywhere inside the DIV:*/
+                elmnt.onmousedown = dragMouseDown;
+            }
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // get the mouse cursor position at startup:
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                // call a function whenever the cursor moves:
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // calculate the new cursor position:
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                // set the element's new position:
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                /* stop moving when mouse button is released:*/
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        dragElement(document.getElementsByClassName("drag-wrapper")[0]);
+
+        function resizeElement(elmnt) {
+            var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            elmnt.onmousedown = dragMouseDown;
+            var svgEl = document.getElementById(elmnt.id + "-graphic");
+
+            function dragMouseDown(e) {
+                var element = this;
+                var width = element.offsetWidth;
+                var height = element.offsetHeight;
+                var x = parseFloat( e.offsetX );
+                var y = parseFloat( e.offsetY ); 
+                if (x < width - 20 || y < height - 20) {
+                    return;
+                }
+
+                e = e || window.event;
+                // e.preventDefault();
+                // get the mouse cursor position at startup:
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                // call a function whenever the cursor moves:
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                // e.preventDefault();
+                // calculate the new cursor position:
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+
+                // set the svg's new scale:
+                svgEl.style.setProperty("width", `${elmnt.offsetWidth- pos1 - 20}px`);
+                svgEl.style.setProperty("height", `${elmnt.offsetHeight- pos2 - 5}px`);
+                
+                //elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                //elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                /* stop moving when mouse button is released:*/
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+        resizeElement(document.getElementsByClassName("drag-wrapper")[0]);
+    </script>
+</body>
+</html>

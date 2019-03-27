@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Title of the document</title>
+    <link rel="stylesheet" type="text/css" href="mystyle.css">
+</head>
+<body>
+    <div class="back-ground">
+        <canvas id="mySymbol1" width="280" height="165"></canvas>
+        <canvas id="mySymbol2" width="280" height="165"></canvas>
+    </div>
+    <script>
+        function dragElement(elmnt) {
+            var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            if (document.getElementById(elmnt.id + "header")) {
+                /* if present, the header is where you move the DIV from:*/
+                document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+            } else {
+                /* otherwise, move the DIV from anywhere inside the DIV:*/
+                elmnt.onmousedown = dragMouseDown;
+            }
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // get the mouse cursor position at startup:
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                // call a function whenever the cursor moves:
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // calculate the new cursor position:
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                // set the element's new position:
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                /* stop moving when mouse button is released:*/
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+        dragElement(document.getElementById("mySymbol1"));
+        dragElement(document.getElementById("mySymbol2"));
+        function drawSymbol(canvasId, min, max, currentValue, unit) {
+            const currentDegree = (currentValue / (max - min) * 1.5 + 0.75) % 2;
+            const c = document.getElementById(canvasId);
+            const ctx = c.getContext('2d');
+
+            // title
+            const titleHeight = 18;
+            ctx.font = "19px Microsoft Sans Serif";
+            ctx.fillStyle = "rgba(33, 33, 33, 0.6)";
+            ctx.fillText("ARUNKUMARN03.SysTimeSec", 5, 15);
+
+            // symbol
+            ctx.lineWidth = 15;
+            ctx.beginPath();
+            ctx.arc(85, 85 + titleHeight, 75, 0.75 * Math.PI, currentDegree * Math.PI);
+            ctx.strokeStyle = "rgb(15, 118, 199)";
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(85, 85 + titleHeight, 75, 0.75 * Math.PI, 0.25 * Math.PI);
+            ctx.strokeStyle = "rgb(15, 118, 199, 0.2)";
+            ctx.stroke();
+
+            // value
+            ctx.font = "23px Microsoft Sans Serif";
+            ctx.fillStyle = "rgba(33, 33, 33)";
+            ctx.textAlign = "center"
+            ctx.fillText(currentValue, 85, 85 + titleHeight);
+
+            // unit
+            ctx.font = "13px Microsoft Sans Serif";
+            ctx.fillStyle = "rgba(33, 33, 33, 0.6)";
+            ctx.textAlign = "center"
+            ctx.fillText(unit, 85, 85 + titleHeight + titleHeight);
+
+            // Max
+            ctx.textAlign = "left"
+            ctx.fillText(min, 40, 160);
+
+            // Min
+            ctx.textAlign = "right"
+            ctx.fillText(max, 130, 160);
+        }
+        const min = 0;
+        const max = 59;
+        var currentValue = 45.0;
+        const unit = "Second";
+        drawSymbol("mySymbol1", min, max, currentValue, unit); 
+        var currentValue = 35.0;
+        drawSymbol("mySymbol2", min, max, currentValue, unit); 
+    </script>
+</body>
+
+</html>
